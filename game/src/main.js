@@ -12,7 +12,7 @@ import { createRandom } from './random.js';
 import { createWorld, EVENT_CAUGHT, EVENT_EMP, EVENT_GRAB, EVENT_PICKUP, EVENT_PING, EVENT_ROOM_CLEAR, EVENT_SPOTTED, updateWorld } from './world.js';
 import { createInput } from './input.js';
 import { sfx, unlockAudio } from './audio.js';
-import { createRenderer, SCREEN_CLEAR, SCREEN_OVER, SCREEN_PAUSED, SCREEN_PLAY, SCREEN_TITLE, SCREEN_WIN } from './render.js';
+import { createRenderer, s2w, SCREEN_CLEAR, SCREEN_OVER, SCREEN_PAUSED, SCREEN_PLAY, SCREEN_TITLE, SCREEN_WIN } from './render.js';
 import { stageShot } from './shots.js';
 import { ROOMS } from './level.js';
 
@@ -129,6 +129,13 @@ function step(inp, dt) {
 let last = performance.now();
 function frame(now) {
   const inputState = input.poll();
+  // Clicks arrive in canvas pixel coords; the world speaks world coords.
+  // Convert at the boundary so click-to-move targets the point the player
+  // actually clicked (was: raw canvas coords, ~160x126px off at centre).
+  if (inputState.click) {
+    const [wx, wy] = s2w(inputState.click.x, inputState.click.y);
+    inputState.click = { x: wx, y: wy };
+  }
   if (inputState.confirm) unlockAudio();
   if (screen === SCREEN_TITLE && (inputState.confirm || inputState.click)) startJob();
   else if (screen === SCREEN_OVER && (inputState.retry || inputState.confirm)) startJob();

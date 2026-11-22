@@ -15,6 +15,11 @@ const SCALE = Math.min(VIEW_W / WORLD_W, (VIEW_H - HUD_H) / WORLD_H);
 const OX = (VIEW_W - WORLD_W * SCALE) / 2;
 const OY = HUD_H + ((VIEW_H - HUD_H) - WORLD_H * SCALE) / 2;
 
+// Inverse of w2s: canvas pixel coords back to world coords. Mouse clicks
+// arrive in canvas space, but the world logic speaks world coords — feeding
+// raw canvas coords to the world targets a point ~160x126px off at centre.
+export function s2w(sx, sy) { return [(sx - OX) / SCALE, (sy - OY) / SCALE]; }
+
 function fmtMoney(n) { return '$' + Math.round(n).toLocaleString('en-US'); }
 
 export function createRenderer(canvas) {
